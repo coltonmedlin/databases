@@ -19,8 +19,9 @@ CREATE TABLE rooms (
 );
 
 CREATE TABLE users(
-  id int(6) NULL auto_increment PRIMARY KEY (id),
-  name varchar(60) NULL DEFAULT NULL
+  id int(6) NOT NULL auto_increment,
+  name varchar(60) NULL DEFAULT NULL,
+  PRIMARY KEY (id)
 );
 
 /*  Execute this file from the command line by typing:
