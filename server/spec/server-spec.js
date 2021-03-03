@@ -16,11 +16,15 @@ describe('Persistent Node Chat Server', function() {
     });
     dbConnection.connect();
 
-    var tablename = 'messages'; // TODO: fill this out
-
     /* Empty the db table before each test so that multiple tests
      * (or repeated runs of the tests) won't screw each other up: */
-    dbConnection.query('truncate ' + tablename, done);
+    dbConnection.query('set foreign_key_checks = 0');
+    dbConnection.query('truncate ' + 'messages');
+    dbConnection.query('truncate ' + 'rooms');
+    dbConnection.query('truncate ' + 'users');
+    dbConnection.query('set foreign_key_checks = 1', done);
+
+
   });
 
   afterEach(function() {
@@ -71,7 +75,7 @@ describe('Persistent Node Chat Server', function() {
       if (err) { throw err; }
     });
 
-    var queryString = 'INSERT INTO messages (text, room) VALUES (?, (SELECT id FROM rooms WHERE name=\'main\'))';
+    var queryString = 'INSERT INTO messages (text, room) VALUES (?, (SELECT id FROM rooms WHERE name=\'main\') )';
     var queryArgs = ['Men like you can never change!'];
     // TODO - The exact query string and query args to use
     // here depend on the schema you design, so I'll leave
