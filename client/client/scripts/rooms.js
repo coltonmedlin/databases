@@ -1,0 +1,7 @@
+var Rooms = {
+
+  add: function() {
+
+  }
+
+};

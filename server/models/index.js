@@ -7,7 +7,7 @@ var dbConnection;
 
 dbConnection = mysql.createConnection({
   user: 'root',
-  password: 'my_password',
+  password: '',
   database: 'chat'
 });
 dbConnection.connect();
@@ -17,14 +17,10 @@ module.exports = {
     get: function (callback) {
       console.log('models.messages.get');
 
-      dbConnection.query('SELECT text, name FROM messages INNER JOIN rooms ON messages.room = rooms.id;', (err, results) => {
+      dbConnection.query('SELECT messages.id, messages.text, rooms.name as ?, users.name as ? FROM messages INNER JOIN rooms ON messages.room = rooms.id INNER JOIN users ON messages.user = users.id', ['room', 'username'], (err, results) => {
         if (err) {
           callback(err, null);
         } else {
-          for (message in results) {
-           results[message].room = results[message].name;
-           delete results[message].name;
-          }
           console.log('message:', results);
           callback(null, results);
         }
@@ -32,14 +28,19 @@ module.exports = {
       //structure messages
 
 
-
     }, // a function which produces all the messages
     post: function (body, callback) {
+      //check the room
       dbConnection.query('INSERT INTO rooms (name) VALUES (?)', [body.roomname], function(err) {
         if (err) { console.log(err); }
       });
 
-      dbConnection.query('INSERT INTO messages (user, text, room) VALUES ((SELECT id from users where name = ?), ?, (SELECT id from rooms where name = ?))', ['Valjean', body.message, 'Hello'], (err, results) => {
+      //check the user
+      dbConnection.query('INSERT INTO users (name) VALUES (?)', [body.username], function(err) {
+        if (err) { console.log(err); }
+      });
+
+      dbConnection.query('INSERT INTO messages (user, text, room) VALUES ((SELECT id from users where name = ?), ?, (SELECT id from rooms where name = ?))', [body.username, body.message, body.roomname], (err, results) => {
         if (err) {
           console.log('failed here:', err);
           callback(err);

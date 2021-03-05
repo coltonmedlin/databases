@@ -11,7 +11,7 @@ describe('Persistent Node Chat Server', function() {
   beforeEach(function(done) {
     dbConnection = mysql.createConnection({
       user: 'root',
-      password: 'my_password',
+      password: '',
       database: 'chat'
     });
     dbConnection.connect();
@@ -71,27 +71,71 @@ describe('Persistent Node Chat Server', function() {
 
   it('Should output all messages from the DB', function(done) {
     // Let's insert a message into the db
-    dbConnection.query('INSERT INTO rooms (name) VALUES (\'main\')', function(err) {
-      if (err) { throw err; }
-    });
+    request({
+      method: 'POST',
+      uri: 'http://127.0.0.1:3000/classes/messages',
+      json: {
+        username: 'Valjean',
+        message: 'Men like you can never change!',
+        roomname: 'main'
+      }
+    }, () => {});
 
-    var queryString = 'INSERT INTO messages (text, room) VALUES (?, (SELECT id FROM rooms WHERE name=\'main\') )';
-    var queryArgs = ['Men like you can never change!'];
-    // TODO - The exact query string and query args to use
-    // here depend on the schema you design, so I'll leave
-    // them up to you. */
 
-    dbConnection.query(queryString, queryArgs, function(err) {
-      if (err) { throw err; }
 
-      // Now query the Node chat server and see if it returns
-      // the message we just inserted:
-      request('http://127.0.0.1:3000/classes/messages', function(error, response, body) {
-        var messageLog = JSON.parse(body);
-        expect(messageLog[0].text).to.equal('Men like you can never change!');
-        expect(messageLog[0].room).to.equal('main');
-        done();
-      });
+    // Now query the Node chat server and see if it returns
+    // the message we just inserted:
+    request('http://127.0.0.1:3000/classes/messages', function(error, response, body) {
+      var messageLog = JSON.parse(body);
+      console.log('messageLog:', messageLog[0]);
+      expect(messageLog[0].text).to.equal('Men like you can never change!');
+      expect(messageLog[0].room).to.equal('main');
+      done();
     });
   });
+
+  it('Should handle duplicate users', function(done) {
+    // Let's insert a user into the db
+    dbConnection.query('INSERT INTO users (name) VALUES (\'Jean-Baptiste\')', function(err) {
+      // if (err) { throw err; }
+    });
+
+    dbConnection.query('SELECT * FROM users', function(err, data) {
+      expect(data.length).to.equal(1);
+    });
+
+    dbConnection.query('INSERT INTO users (name) VALUES (\'Jean-Baptiste\')', function(err) {
+      // if (err) { throw err; }
+    });
+
+    dbConnection.query('SELECT * FROM users', function(err, data) {
+      expect(data.length).to.equal(1);
+    });
+
+    done();
+  });
+
+  it('Should handle duplicate rooms', function(done) {
+    // Let's insert a user into the db
+    dbConnection.query('INSERT INTO rooms (name) VALUES (\'Hack_Lounge\')', function(err) {
+      // if (err) { throw err; }
+    });
+
+    dbConnection.query('SELECT * FROM rooms', function(err, data) {
+      expect(data.length).to.equal(1);
+    });
+
+    dbConnection.query('INSERT INTO rooms (name) VALUES (\'Hack_Lounge\')', function(err) {
+      // if (err) { throw err; }
+    });
+
+    dbConnection.query('SELECT * FROM rooms', function(err, data) {
+      expect(data.length).to.equal(1);
+    });
+
+    done();
+
+  });
+
 });
+

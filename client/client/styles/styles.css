@@ -66,22 +66,7 @@ form input[type=text] {
 }
 
 .chat .username {
-    /* font-weight: 800; */
-}
-
-.username {
-    color: cornflowerblue;
-}
-
-[data-friend='true'] {
-    /* color: red; */
     font-weight: 800;
-}
-
-
-.username:hover {
-    cursor: pointer;
-    text-decoration: underline;
 }
 
 .chat:hover {
@@ -103,3 +88,8 @@ form input[type=text] {
     background-color: #0090da;
 }
 
+.room {
+   color: gray;
+   padding-top: 5px;
+   font-size: 10px;
+}

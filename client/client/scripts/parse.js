@@ -1,19 +1,19 @@
 var Parse = {
 
-  server: `http://127.0.0.1:3000/classes`,
+  server: 'http://127.0.0.1:3000/classes',
 
   create: function(message, successCB, errorCB = null) {
-    // todo: save a message to the server
-
     $.ajax({
       // This is the url you should use to communicate with the parse API server.
-      url: `${Parse.server}/messages`,
+      url: Parse.server + '/messages',
       type: 'POST',
       data: JSON.stringify(message),
       contentType: 'application/json',
-      success: successCB,
-      error: errorCB || function(error) {
-        console.error('chatterbox: Failed to post messages', error);
+      success: function (data) {
+        console.log('chatterbox: Message sent');
+      },
+      error: function (data) {
+        console.error('chatterbox: Failed to send message', data);
       }
     });
   },
@@ -22,7 +22,8 @@ var Parse = {
     $.ajax({
       url: Parse.server + '/messages',
       type: 'GET',
-      data: { order: '-createdAt' },
+      header:
+      'Access-Control-Allow-Origin: *',
       contentType: 'application/json',
       success: successCB,
       error: errorCB || function(error) {
@@ -32,4 +33,3 @@ var Parse = {
   }
 
 };
-
