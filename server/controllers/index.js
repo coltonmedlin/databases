@@ -8,7 +8,7 @@ module.exports = {
         if (err) {
           res.status(404).end();
         } else {
-          res.status(200)
+          res.status(200);
           res.send(messages).end();
         }
       });
@@ -17,11 +17,13 @@ module.exports = {
       console.log('POST REQUEST:', req.body);
       models.messages.post(req.body, (err) => {
         if (err) {
-          res.status(400).end();
+          res.status(400);
+          res.send(err);
+          res.end();
         } else {
           res.status(201).end();
         }
-      })
+      });
     } // a function which handles posting a message to the database
   },
 
@@ -38,15 +40,11 @@ module.exports = {
         if (err) {
           res.status(400).end();
         } else {
-          res.status(200).end();
+          res.status(201).end();
         }
-      })
+      });
 
       console.log('username:', username);
-      // connect to the database
-      // post the response
-      // close request (201)
-
     }
   }
 };
