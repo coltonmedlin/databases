@@ -36,7 +36,6 @@ module.exports = {
     },
     post: function (req, res) {
       console.log('controllers.users.post');
-      // grab the user name
       let username = req.body.username;
       models.users.post(username, (err) => {
         if (err) {
