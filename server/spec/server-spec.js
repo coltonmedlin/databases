@@ -47,7 +47,7 @@ describe('Persistent Node Chat Server', function() {
           message: 'In mercy\'s name, three days is all I need.',
           roomname: 'Hello'
         }
-      }, function () {
+      }, () => {
         // Now if we look in the database, we should find the
         // posted message there.
 
@@ -55,16 +55,15 @@ describe('Persistent Node Chat Server', function() {
         // your message table, since this is schema-dependent.
         var queryString = 'SELECT * FROM messages';
         var queryArgs = [];
-
         dbConnection.query(queryString, queryArgs, function(err, results) {
           // Should have one result:
           expect(results.length).to.equal(1);
-
           // TODO: If you don't have a column named text, change this test.
           expect(results[0].text).to.equal('In mercy\'s name, three days is all I need.');
 
           done();
         });
+
       });
     });
   });
@@ -79,18 +78,15 @@ describe('Persistent Node Chat Server', function() {
         message: 'Men like you can never change!',
         roomname: 'main'
       }
-    }, () => {});
-
-
-
-    // Now query the Node chat server and see if it returns
-    // the message we just inserted:
-    request('http://127.0.0.1:3000/classes/messages', function(error, response, body) {
-      var messageLog = JSON.parse(body);
-      console.log('messageLog:', messageLog[0]);
-      expect(messageLog[0].text).to.equal('Men like you can never change!');
-      expect(messageLog[0].room).to.equal('main');
-      done();
+    }, () => {
+      // Now query the Node chat server and see if it returns
+      // the message we just inserted:
+      request('http://127.0.0.1:3000/classes/messages', function(error, response, body) {
+        var messageLog = JSON.parse(body);
+        expect(messageLog[0].text).to.equal('Men like you can never change!');
+        expect(messageLog[0].room).to.equal('main');
+        done();
+      });
     });
   });
 
@@ -132,10 +128,38 @@ describe('Persistent Node Chat Server', function() {
     dbConnection.query('SELECT * FROM rooms', function(err, data) {
       expect(data.length).to.equal(1);
     });
+    done();
+  });
+
+  it('Should allow duplicate messages', function(done) {
+    // Let's insert a user into the db
+    dbConnection.query('INSERT INTO messages (text) VALUES (\'Welcome to the Hack Lounge\')', function(err) {
+      // if (err) { throw err; }
+    });
+
+    dbConnection.query('INSERT INTO messages (text) VALUES (\'Welcome to the Hack Lounge\')', function(err) {
+      // if (err) { throw err; }
+    });
+
+
+    dbConnection.query('SELECT * FROM messages', function(err, data) {
+      expect(data.length).to.equal(2);
+    });
 
     done();
-
   });
+
+
+  it('Should respond with an error to a bad request', function(done) {
+    // Let's insert a user into the db
+    dbConnection.query('INSERT INTO messages (badRow) VALUES (\'Welcome to the Hack Lounge\')', function(err) {
+      // if (err) { throw err; }
+      expect(err).to.be(true);
+    });
+
+    done();
+  });
+
 
 });
 

@@ -6,7 +6,9 @@ module.exports = {
     get: function (req, res) {
       models.messages.get((err, messages) => {
         if (err) {
-          res.status(404).end();
+          res.status(404);
+          res.send(err);
+          res.end();
         } else {
           res.status(200);
           res.send(messages).end();
